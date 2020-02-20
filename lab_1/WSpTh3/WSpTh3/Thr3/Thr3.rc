@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -16,13 +16,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Russian resources
+// Русский (Россия) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
-#ifdef _WIN32
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 #pragma code_page(1251)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -30,7 +28,7 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
@@ -43,30 +41,22 @@ END
 // Dialog
 //
 
-IDD_DIALOG_PRIORITY DIALOG DISCARDABLE  0, 0, 186, 209
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_DIALOG_PRIORITY DIALOG 0, 0, 186, 209
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "ChangeThread Priority"
 FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,71,188,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,129,188,50,14
     GROUPBOX        "Thread Priority",IDC_STATIC_PRIORITY,10,7,164,141
-    CONTROL         "Time-critical",IDC_RADIO_TMCRITICAL,"Button",
-                    BS_AUTORADIOBUTTON,25,22,53,10
-    CONTROL         "Highest",IDC_RADIO_HGHST,"Button",BS_AUTORADIOBUTTON,25,
-                    40,40,10
-    CONTROL         "Above normal",IDC_RADIO_ABOVE,"Button",
-                    BS_AUTORADIOBUTTON,25,58,59,10
-    CONTROL         "Normal",IDC_RADIO_NORMAL,"Button",BS_AUTORADIOBUTTON,25,
-                    76,38,10
-    CONTROL         "Below normal",IDC_RADIO_BELOW,"Button",
-                    BS_AUTORADIOBUTTON,25,94,58,10
-    CONTROL         "Lowest",IDC_RADIO_LOWEST,"Button",BS_AUTORADIOBUTTON,25,
-                    112,39,10
-    CONTROL         "Idle",IDC_RADIO_IDLE,"Button",BS_AUTORADIOBUTTON,25,130,
-                    27,10
-    LTEXT           "Priority Class",IDC_STATIC_PR_CL,14,161,157,11,
-                    SS_SUNKEN
+    CONTROL         "Time-critical",IDC_RADIO_TMCRITICAL,"Button",BS_AUTORADIOBUTTON,25,22,53,10
+    CONTROL         "Highest",IDC_RADIO_HGHST,"Button",BS_AUTORADIOBUTTON,25,40,40,10
+    CONTROL         "Above normal",IDC_RADIO_ABOVE,"Button",BS_AUTORADIOBUTTON,25,58,59,10
+    CONTROL         "Normal",IDC_RADIO_NORMAL,"Button",BS_AUTORADIOBUTTON,25,76,38,10
+    CONTROL         "Below normal",IDC_RADIO_BELOW,"Button",BS_AUTORADIOBUTTON,25,94,58,10
+    CONTROL         "Lowest",IDC_RADIO_LOWEST,"Button",BS_AUTORADIOBUTTON,25,112,39,10
+    CONTROL         "Idle",IDC_RADIO_IDLE,"Button",BS_AUTORADIOBUTTON,25,130,27,10
+    LTEXT           "Priority Class",IDC_STATIC_PR_CL,14,161,157,11,SS_SUNKEN
 END
 
 
@@ -76,7 +66,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_DIALOG_PRIORITY, DIALOG
     BEGIN
@@ -88,18 +78,16 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // Russian resources
+#endif    // Русский (Россия) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// Английский (США) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -107,7 +95,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
     "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
     "#include ""windows.h""\r\n"
@@ -116,7 +104,7 @@ BEGIN
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"
@@ -130,8 +118,8 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOG DISCARDABLE  22, 17, 230, 75
-STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+IDD_ABOUTBOX DIALOG 22, 17, 230, 75
+STYLE DS_SETFONT | DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
 FONT 8, "System"
 BEGIN
@@ -144,20 +132,37 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // Icon
 //
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_THR3                ICON    DISCARDABLE     "Thr3.ICO"
-IDI_SMALL               ICON    DISCARDABLE     "SMALL.ICO"
+IDI_THR3                ICON                    "Thr3.ICO"
+
+IDI_SMALL               ICON                    "SMALL.ICO"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
 //
 
-IDC_THR3 MENU DISCARDABLE 
+IDC_THR3 MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -167,9 +172,11 @@ BEGIN
     BEGIN
         MENUITEM "Suspend Ellipse",             IDM_SUSE
         MENUITEM "Suspend Rectangle",           IDM_SUSR
+        MENUITEM "Suspend Line",                ID_COMMAND_SUSPENDLINE
         MENUITEM SEPARATOR
         MENUITEM "Terminate Ellipse",           IDM_TERME
         MENUITEM "Terminate Rectangle",         IDM_TERMR
+        MENUITEM "Terminate Line",              ID_COMMAND_TERMINATELINE
         MENUITEM SEPARATOR
         MENUITEM "Change Thread Priority of Ellipse", IDM_CH_THR_PR_ELL
     END
@@ -185,7 +192,7 @@ END
 // Accelerator
 //
 
-IDC_THR3 ACCELERATORS MOVEABLE PURE 
+IDC_THR3 ACCELERATORS
 BEGIN
     "?",            IDM_ABOUT,              ASCII,  ALT
     "/",            IDM_ABOUT,              ASCII,  ALT
@@ -197,14 +204,14 @@ END
 // String Table
 //
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     IDS_APP_TITLE           "Thr3"
     IDS_HELLO               "Hello World!"
     IDC_THR3                "THR3"
 END
 
-#endif    // English (U.S.) resources
+#endif    // Английский (США) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

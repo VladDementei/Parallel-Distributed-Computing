@@ -22,13 +22,15 @@
 //Globals to control threads
 TCHAR szMutexName[]="$MutexFor3Threads$";
 HANDLE hMutex;
-HANDLE hThreadE[2];
+HANDLE hThreadE[3];
 
 BOOL fTerminateE;
 BOOL fTerminateR;
+BOOL fTerminateL;
 
 bool bSuspendE, 
-	 bSuspendR;
+	 bSuspendR, 
+	bSuspendL;
 
 unsigned thridE;		//thread identifier
 
@@ -64,11 +66,16 @@ void WndProc_OnClose(HWND hWnd);
 
 unsigned int __stdcall  PaintEllipse(void *hWnd);
 unsigned int __stdcall  PaintRectangle(void *hWnd);
+unsigned int __stdcall  PaintLine(void *hWnd);
 
 void SuspendEllipse(HMENU hMenu,bool *bSuspend);
 void SuspendRectangle(HMENU hMenu,bool *bSuspend);
+void SuspendLine(HMENU hMenu, bool *bSuspend);
 
 void TerminateEllipse(HWND hWnd,HMENU hMenu,BOOL *fTerminateE);
+void TerminateRectangle(HWND hWnd, HMENU hMenu, BOOL *fTerminateR);
+void TerminateLine(HWND hWnd, HMENU hMenu, BOOL *fTerminateL);
+
 
 //_stdcall for APIENTRY (see Windef.h), used for new and last versions
 int APIENTRY WinMain(HINSTANCE hInstance,
@@ -229,8 +236,20 @@ LONG WndProc_OnCommand (HWND hWnd,int id,HWND hwndCtl,UINT codeNotify)
 				SuspendRectangle(GetMenu(hWnd),&bSuspendR);
 				return 0L;
 
+				case IDM_SUSL:
+				SuspendLine(GetMenu(hWnd), &bSuspendL);
+				return 0L;
+
 				case IDM_TERME:
 				TerminateEllipse(hWnd,GetMenu(hWnd), &fTerminateE);
+				return 0L;
+
+				case IDM_TERMR:
+				TerminateRectangle(hWnd, GetMenu(hWnd), &fTerminateR);
+				return 0L;
+
+				case IDM_TERML:
+				TerminateLine(hWnd, GetMenu(hWnd), &fTerminateL);
 				return 0L;
 
 				case IDM_CH_THR_PR_ELL:
@@ -287,10 +306,13 @@ LONG WndProc_OnCreate(HWND hWnd,LPCREATESTRUCT lpCreateStruct)
 {
 	fTerminateE=FALSE;
 	fTerminateR=FALSE;
+	fTerminateL = FALSE;
 	//Thread PaintEllipse starting not suspended!
 	 bSuspendE = false;
 	//Thread PaintRectangle starting not suspended!
 	bSuspendR = false;
+	//Thread PaintLine starting not suspended!
+	bSuspendL = false;
 
 			unsigned ususpend=0;
   hThreadE[0]=(HANDLE)_beginthreadex(NULL,//must be FOR W95 ,SA
@@ -318,6 +340,20 @@ LONG WndProc_OnCreate(HWND hWnd,LPCREATESTRUCT lpCreateStruct)
 							   MB_OK|MB_ICONEXCLAMATION);
 		return FALSE;
   }
+
+  hThreadE[2] = (HANDLE)_beginthreadex(NULL,//must be FOR W95
+								0,//stack size
+								PaintLine,
+								(void *)hWnd,
+								ususpend,//0
+								&thridE
+  );
+  if (!hThreadE[2]) {
+	  MessageBox(NULL, "Thread start Error",
+		  "PaintLine Thread",
+		  MB_OK | MB_ICONEXCLAMATION);
+	  return FALSE;
+  }
   
 
 		return TRUE;//BOOL
@@ -329,14 +365,17 @@ LONG WndProc_OnDestroy(HWND hWnd)
 			ResumeThread(hThreadE[0]);
 	if(bSuspendR)
 			ResumeThread(hThreadE[1]);
+	if (bSuspendL)
+		ResumeThread(hThreadE[2]);
 
 	fTerminateE=TRUE;
 	fTerminateR=TRUE;
+	fTerminateL = TRUE;
 
 	TCHAR szRetRes [100];
 	DWORD dwRet;
 
-	switch(dwRet=WaitForMultipleObjects(2,hThreadE,TRUE,INFINITE))
+	switch(dwRet=WaitForMultipleObjects(3,hThreadE,TRUE,INFINITE))
 	{
 	case WAIT_ABANDONED_0 :	
        	wsprintf(szRetRes,TEXT("WAIT_ABANDONED_0=%d dwRet=%d"),WAIT_ABANDONED_0,dwRet);
@@ -357,6 +396,11 @@ LONG WndProc_OnDestroy(HWND hWnd)
 	if(!CloseHandle(hThreadE[1]))
 	{MessageBox(NULL,"CloseHandle  failed",
 					       "PaintEllipse Thread", MB_OK|MB_ICONEXCLAMATION);
+	};
+	if (!CloseHandle(hThreadE[2]))
+	{
+		MessageBox(NULL, "CloseHandle  failed",
+			"PaintLine Thread", MB_OK | MB_ICONEXCLAMATION);
 	};
 
 	CloseHandle(hMutex);
@@ -510,6 +554,69 @@ and the mutex is set to nonsignaled.
 	return 0;
 }//End of PaintRectangle
 
+unsigned int __stdcall  PaintLine(void *hWnd) {
+
+	HDC hDC;
+	RECT rect;
+	LONG xFirst, xSecond, xThird, yFirst, ySecond, yThird;
+	short nRed, nGreen, nBlue;
+	HPEN hBrush, hOldBrush;
+	DWORD dwRetCode;
+
+	srand((unsigned int)hWnd);
+	while (!fTerminateL) {
+		// Is not it to be continued?
+
+		// To be continued!
+		switch (dwRetCode = WaitForSingleObject(hMutex, INFINITE)) {
+
+		case WAIT_ABANDONED:break;
+			/*
+			The specified object is a mutex object that was not released by the thread
+			that owned the mutex object before the owning thread terminated.
+			Ownership of the mutex object is granted to the calling thread,
+			and the mutex is set to nonsignaled.
+			*/
+		case WAIT_FAILED:
+			// DWORD GetLastError(VOID) 			
+			break;
+		case WAIT_TIMEOUT:break; //by INFINITE never occurs
+		case WAIT_OBJECT_0:
+		{
+			hDC = GetDC((HWND)hWnd);
+			nRed = rand() % 255; nGreen = rand() % 255; nBlue = rand() % 255;
+
+			GetWindowRect((HWND)hWnd, &rect);
+			xFirst = rand() % (rect.right - rect.left + 1);
+			xSecond = rand() % (rect.right - rect.left + 1);
+			xThird = rand() % (rect.right - rect.left + 1);
+			yFirst = rand() % (rect.bottom - rect.top + 1);
+			ySecond = rand() % (rect.bottom - rect.top + 1);
+			yThird = rand() % (rect.bottom - rect.top + 1);
+
+			hBrush = CreatePen(PS_SOLID, 20, (RGB(nRed, nGreen, nBlue)));
+			hOldBrush = (HPEN)SelectObject(hDC, hBrush);
+		
+			MoveToEx(hDC, xFirst, yFirst, NULL);
+			LineTo(hDC, xSecond, ySecond);
+			LineTo(hDC, xThird, yThird);
+			LineTo(hDC, xFirst, yFirst);
+
+			SelectObject(hDC, hOldBrush);
+
+			DeleteObject(hBrush);
+			ReleaseDC((HWND)hWnd, hDC);
+			//Sleep(10000);
+			ReleaseMutex(hMutex);
+			break;
+		};
+		}
+		Sleep(100);
+		InvalidateRect((HWND)hWnd, NULL, TRUE);
+		Sleep(100);
+	}//End of while
+	return 0;
+}//End of PaintRectangle
 //Wrong solution whithout using hMutex???
 
 void SuspendEllipse(HMENU hMenu,bool *bSuspend)
@@ -596,6 +703,13 @@ switch(dwRetCode=WaitForSingleObject(hMutex,INFINITE))
 }//switch
 }//SuspendRectangle
 
+ //Right solution 
+
+void SuspendLine(HMENU hMenu, bool *bSuspend)
+{
+	
+}//SuspendEllipse
+
 void TerminateEllipse(HWND hWnd,HMENU hMenu,BOOL *fTerminateE)
 {
 	if(!*fTerminateE)
@@ -639,6 +753,16 @@ void TerminateEllipse(HWND hWnd,HMENU hMenu,BOOL *fTerminateE)
 
 	}
 	return;
+}
+
+void TerminateRectangle(HWND hWnd, HMENU hMenu, BOOL *fTerminateR)
+{
+	
+}
+
+void TerminateLine(HWND hWnd, HMENU hMenu, BOOL *fTerminateL)
+{
+
 }
 
 //Dialog Box Function
