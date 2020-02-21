@@ -387,6 +387,8 @@ LONG WndProc_OnDestroy(HWND hWnd)
 		MessageBox(NULL,szRetRes,"WaitForMultipleObjects",MB_OK|MB_ICONEXCLAMATION);
 		break;
 	case WAIT_FAILED:
+		wsprintf(szRetRes, TEXT("WAIT_FAILED_0=%d dwRet=%d"), WAIT_FAILED, dwRet);
+		MessageBox(NULL, szRetRes, "WaitForMultipleObjects", MB_OK | MB_ICONEXCLAMATION);
 		break;
 	case WAIT_OBJECT_0:	
 		wsprintf(szRetRes,TEXT("WAIT_OBJECT_0=%d dwRet=%d"),WAIT_OBJECT_0,dwRet);
@@ -394,15 +396,15 @@ LONG WndProc_OnDestroy(HWND hWnd)
 		break;
 	}
 
-	if(!CloseHandle(hThreadE[0]))
+	if(!fTerminateE && !CloseHandle(hThreadE[0]))
 	{MessageBox(NULL,"CloseHandle  failed",//NULL , no hWnd(the window is destroied) 
 					       "PaintEllipse Thread",MB_OK|MB_ICONEXCLAMATION);
 	};
-	if(!CloseHandle(hThreadE[1]))
+	if(!fTerminateR && !CloseHandle(hThreadE[1]))
 	{MessageBox(NULL,"CloseHandle  failed",
-					       "PaintEllipse Thread", MB_OK|MB_ICONEXCLAMATION);
+					       "PaintRect Thread", MB_OK|MB_ICONEXCLAMATION);
 	};
-	if (!CloseHandle(hThreadE[2]))
+	if (!fTerminateL && !CloseHandle(hThreadE[2]))
 	{
 		MessageBox(NULL, "CloseHandle  failed",
 			"PaintLine Thread", MB_OK | MB_ICONEXCLAMATION);
