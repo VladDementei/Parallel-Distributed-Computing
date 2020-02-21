@@ -488,7 +488,7 @@ unsigned int __stdcall  PaintEllipse(void *hWnd){
 			};
 		}
 		Sleep(100);
-//	InvalidateRect((HWND)hWnd,NULL,TRUE); //NULL- the whole client region
+		InvalidateRect((HWND)hWnd,NULL,TRUE); //NULL- the whole client region
 	     //TRUE - the background is erased when the BeginPaint function is called. 
 	Sleep(100);
 	}//End of while
@@ -815,12 +815,94 @@ void TerminateEllipse(HWND hWnd,HMENU hMenu,BOOL *fTerminateE)
 
 void TerminateRectangle(HWND hWnd, HMENU hMenu, BOOL *fTerminateR)
 {
-	
+	if (!*fTerminateR)
+	{
+		//Check
+		//Sets the check-mark attribute to the unchecked state.
+		CheckMenuItem(hMenu, IDM_TERMR, MF_CHECKED);
+		*fTerminateR = true;
+		if (bSuspendR)
+			ResumeThread(hThreadE[1]);
+
+		WaitForSingleObject(hThreadE[1], INFINITE);//Block the primary thread if PaintRectangle
+												   // is in the suspended state
+		if (!CloseHandle(hThreadE[1]))
+		{
+			MessageBox(NULL, "CloseHandle  failed",
+				"PaintRectangle Thread",
+				MB_OK | MB_ICONEXCLAMATION);
+		};
+
+
+	}
+	else
+	{
+		//Uncheck
+		//Sets the check-mark attribute to the checked state.
+		CheckMenuItem(hMenu, IDM_TERMR, MF_UNCHECKED);
+
+		*fTerminateR = false;
+
+		unsigned ususpend = (bSuspendR) ? CREATE_SUSPENDED : 0;
+		hThreadE[1] = (HANDLE)_beginthreadex(NULL,//must be FOR W95
+			0,//stack size
+			PaintRectangle,
+			(void *)hWnd,
+			ususpend,//0
+			&thridE
+		);
+		if (!hThreadE[1])MessageBox(NULL, "Thread start Error",
+			"PaintRectangle Thread",
+			MB_OK | MB_ICONEXCLAMATION);
+
+	}
+	return;
 }
 
 void TerminateLine(HWND hWnd, HMENU hMenu, BOOL *fTerminateL)
 {
+	if (!*fTerminateL)
+	{
+		//Check
+		//Sets the check-mark attribute to the unchecked state.
+		CheckMenuItem(hMenu, IDM_TERML, MF_CHECKED);
+		*fTerminateL = true;
+		if (bSuspendL)
+			ResumeThread(hThreadE[2]);
 
+		WaitForSingleObject(hThreadE[2], INFINITE);//Block the primary thread if PaintLine
+												   // is in the suspended state
+		if (!CloseHandle(hThreadE[2]))
+		{
+			MessageBox(NULL, "CloseHandle  failed",
+				"PaintLine Thread",
+				MB_OK | MB_ICONEXCLAMATION);
+		};
+
+
+	}
+	else
+	{
+		//Uncheck
+		//Sets the check-mark attribute to the checked state.
+		CheckMenuItem(hMenu, IDM_TERML, MF_UNCHECKED);
+
+		*fTerminateL = false;
+
+		unsigned ususpend = (bSuspendL) ? CREATE_SUSPENDED : 0;
+		hThreadE[2] = (HANDLE)_beginthreadex(NULL,//must be FOR W95
+			0,//stack size
+			PaintLine,
+			(void *)hWnd,
+			ususpend,//0
+			&thridE
+		);
+		if (!hThreadE[2])MessageBox(NULL, "Thread start Error",
+			"PaintLine Thread",
+			MB_OK | MB_ICONEXCLAMATION);
+
+	}
+	return;
 }
 
 //Dialog Box Function
