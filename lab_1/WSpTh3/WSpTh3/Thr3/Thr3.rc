@@ -172,11 +172,11 @@ BEGIN
     BEGIN
         MENUITEM "Suspend Ellipse",             IDM_SUSE
         MENUITEM "Suspend Rectangle",           IDM_SUSR
-        MENUITEM "Suspend Line",                ID_COMMAND_SUSPENDLINE
+        MENUITEM "Suspend Line",                IDM_SUSL
         MENUITEM SEPARATOR
         MENUITEM "Terminate Ellipse",           IDM_TERME
         MENUITEM "Terminate Rectangle",         IDM_TERMR
-        MENUITEM "Terminate Line",              ID_COMMAND_TERMINATELINE
+        MENUITEM "Terminate Line",              IDM_TERML
         MENUITEM SEPARATOR
         MENUITEM "Change Thread Priority of Ellipse", IDM_CH_THR_PR_ELL
     END

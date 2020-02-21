@@ -617,40 +617,55 @@ unsigned int __stdcall  PaintLine(void *hWnd) {
 	}//End of while
 	return 0;
 }//End of PaintRectangle
-//Wrong solution whithout using hMutex???
+
+ //Right solution 
 
 void SuspendEllipse(HMENU hMenu,bool *bSuspend)
 {	
 	TCHAR message[260];
+	DWORD dwRetCode;
+	switch (dwRetCode = WaitForSingleObject(hMutex, INFINITE))
+	{
 
-	if(!*bSuspend){	 
-		if(0xFFFFFFFF==SuspendThread(hThreadE[0]))//or -1 (==0xFFFFFFFF)
-		{		
-			wsprintf(message,TEXT("SuspendThread Error %ld"),GetLastError());
-			MessageBox(NULL,message,"PaintEllipse Thread",MB_OK|MB_ICONEXCLAMATION);
-			return;
+	case WAIT_ABANDONED:break;
+	case WAIT_FAILED:break;
+	case WAIT_OBJECT_0:
+
+		if (!*bSuspend) {
+			if (0xFFFFFFFF == SuspendThread(hThreadE[0]))
+			{
+				wsprintf(message, TEXT("SuspendThread Error %ld"), GetLastError());
+				MessageBox(NULL, message, "PaintEllipse Thread", MB_OK | MB_ICONEXCLAMATION);
+				ReleaseMutex(hMutex);
+				return;
+			}
+
+			*bSuspend = true;
+			//Check
+			//Sets the check-mark attribute to the checked state.
+			CheckMenuItem(hMenu, IDM_SUSE, MF_CHECKED);
 		}
+		else
+		{
+			if (0xFFFFFFFF == ResumeThread(hThreadE[0]))
+			{
+				wsprintf(message, TEXT("ResumeThread Error %ld"), GetLastError());
+				MessageBox(NULL, message, "PaintEllipse Thread", MB_OK | MB_ICONEXCLAMATION);
+				ReleaseMutex(hMutex);
+				return;
+			}
 
-		*bSuspend = true;
-		//Check
-		//Sets the check-mark attribute to the checked state.
-		CheckMenuItem(hMenu,IDM_SUSE,MF_CHECKED);
-	}
-	else
-	{	
-		if(0xFFFFFFFF==ResumeThread(hThreadE[0]))
-		{			
-			wsprintf(message,TEXT("ResumeThread Error %ld"),GetLastError());
-			MessageBox(NULL,message,"PaintEllipse Thread",MB_OK|MB_ICONEXCLAMATION);
-			return;
+			*bSuspend = false;
+			//Uncheck 
+			//Sets the check-mark attribute to the unchecked state.
+			CheckMenuItem(hMenu, IDM_SUSE, MF_UNCHECKED);
 		}
-
-		*bSuspend = false;
-		//Uncheck 
-		//Sets the check-mark attribute to the unchecked state.
-		CheckMenuItem(hMenu,IDM_SUSE,MF_UNCHECKED);			
-	}
-	return;
+		ReleaseMutex(hMutex);
+		return;
+		break;
+	default: //is never reached!!
+		break;
+	}//switch
 }
 
 //Right solution 
@@ -707,8 +722,51 @@ switch(dwRetCode=WaitForSingleObject(hMutex,INFINITE))
 
 void SuspendLine(HMENU hMenu, bool *bSuspend)
 {
-	
-}//SuspendEllipse
+	TCHAR message[260];
+	DWORD dwRetCode;
+	switch (dwRetCode = WaitForSingleObject(hMutex, INFINITE))
+	{
+
+	case WAIT_ABANDONED:break;
+	case WAIT_FAILED:break;
+	case WAIT_OBJECT_0:
+
+		if (!*bSuspend) {
+			if (0xFFFFFFFF == SuspendThread(hThreadE[2]))
+			{
+				wsprintf(message, TEXT("SuspendThread Error %ld"), GetLastError());
+				MessageBox(NULL, message, "PaintLine Thread", MB_OK | MB_ICONEXCLAMATION);
+				ReleaseMutex(hMutex);
+				return;
+			}
+
+			*bSuspend = true;
+			//Check
+			//Sets the check-mark attribute to the checked state.
+			CheckMenuItem(hMenu, IDM_SUSL, MF_CHECKED);
+		}
+		else
+		{
+			if (0xFFFFFFFF == ResumeThread(hThreadE[2]))
+			{
+				wsprintf(message, TEXT("ResumeThread Error %ld"), GetLastError());
+				MessageBox(NULL, message, "PaintLine Thread", MB_OK | MB_ICONEXCLAMATION);
+				ReleaseMutex(hMutex);
+				return;
+			}
+
+			*bSuspend = false;
+			//Uncheck 
+			//Sets the check-mark attribute to the unchecked state.
+			CheckMenuItem(hMenu, IDM_SUSL, MF_UNCHECKED);
+		}
+		ReleaseMutex(hMutex);
+		return;
+		break;
+	default: //is never reached!!
+		break;
+	}//switch
+}
 
 void TerminateEllipse(HWND hWnd,HMENU hMenu,BOOL *fTerminateE)
 {
