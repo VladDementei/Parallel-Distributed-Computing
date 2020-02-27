@@ -380,14 +380,24 @@ LONG WndProc_OnDestroy(HWND hWnd)
 	TCHAR szRetRes [100];
 	DWORD dwRet;
 
-	switch(dwRet=WaitForMultipleObjects(3,hThreadE,TRUE,INFINITE))
+	//filter not INVALID_HANDLE_VALUE
+	HANDLE hThreadNew[3];
+	int k = 0;
+	for (int i = 0; i < 3; i++) {
+		if (hThreadE[i] != INVALID_HANDLE_VALUE) {
+			hThreadNew[k] = hThreadE[i];
+			k++;
+		}
+	}
+
+	switch(dwRet=WaitForMultipleObjects(k,hThreadNew,TRUE,INFINITE))//wait only not INVALID_HANDLE_VALUE
 	{
 	case WAIT_ABANDONED_0 :	
        	wsprintf(szRetRes,TEXT("WAIT_ABANDONED_0=%d dwRet=%d"),WAIT_ABANDONED_0,dwRet);
 		MessageBox(NULL,szRetRes,"WaitForMultipleObjects",MB_OK|MB_ICONEXCLAMATION);
 		break;
 	case WAIT_FAILED:
-		wsprintf(szRetRes, TEXT("WAIT_FAILED_0=%d dwRet=%d"), WAIT_FAILED, dwRet);
+		wsprintf(szRetRes, TEXT("WAIT_FAILED_0=%d"), GetLastError());
 		MessageBox(NULL, szRetRes, "WaitForMultipleObjects", MB_OK | MB_ICONEXCLAMATION);
 		break;
 	case WAIT_OBJECT_0:	
@@ -396,15 +406,16 @@ LONG WndProc_OnDestroy(HWND hWnd)
 		break;
 	}
 
-	if(!fTerminateE && !CloseHandle(hThreadE[0]))
+	//first check if handle is valid, if yes -  try to close
+	if(hThreadE[0] != INVALID_HANDLE_VALUE && !CloseHandle(hThreadE[0]))
 	{MessageBox(NULL,"CloseHandle  failed",//NULL , no hWnd(the window is destroied) 
 					       "PaintEllipse Thread",MB_OK|MB_ICONEXCLAMATION);
 	};
-	if(!fTerminateR && !CloseHandle(hThreadE[1]))
+	if(hThreadE[1] != INVALID_HANDLE_VALUE && !CloseHandle(hThreadE[1]))
 	{MessageBox(NULL,"CloseHandle  failed",
 					       "PaintRect Thread", MB_OK|MB_ICONEXCLAMATION);
 	};
-	if (!fTerminateL && !CloseHandle(hThreadE[2]))
+	if (hThreadE[2] != INVALID_HANDLE_VALUE && !CloseHandle(hThreadE[2]))
 	{
 		MessageBox(NULL, "CloseHandle  failed",
 			"PaintLine Thread", MB_OK | MB_ICONEXCLAMATION);
@@ -641,10 +652,10 @@ void SuspendEllipse(HMENU hMenu,bool *bSuspend)
 	case WAIT_ABANDONED:break;
 	case WAIT_FAILED:break;
 	case WAIT_OBJECT_0:*/
-	EnterCriticalSection(&cs);
 
 
 		if (!*bSuspend) {
+			EnterCriticalSection(&cs);
 			if (0xFFFFFFFF == SuspendThread(hThreadE[0]))
 			{
 				wsprintf(message, TEXT("SuspendThread Error %ld"), GetLastError());
@@ -653,7 +664,7 @@ void SuspendEllipse(HMENU hMenu,bool *bSuspend)
 				LeaveCriticalSection(&cs);
 				return;
 			}
-
+			LeaveCriticalSection(&cs);
 			*bSuspend = true;
 			//Check
 			//Sets the check-mark attribute to the checked state.
@@ -665,7 +676,6 @@ void SuspendEllipse(HMENU hMenu,bool *bSuspend)
 			{
 				wsprintf(message, TEXT("ResumeThread Error %ld"), GetLastError());
 				MessageBox(NULL, message, "PaintEllipse Thread", MB_OK | MB_ICONEXCLAMATION);
-				LeaveCriticalSection(&cs);
 				//ReleaseMutex(hMutex);
 				return;
 			}
@@ -676,7 +686,6 @@ void SuspendEllipse(HMENU hMenu,bool *bSuspend)
 			CheckMenuItem(hMenu, IDM_SUSE, MF_UNCHECKED);
 		}
 		//ReleaseMutex(hMutex);
-		LeaveCriticalSection(&cs);
 		return;
 	//	break;
 	//default: //is never reached!!
@@ -697,8 +706,8 @@ void SuspendRectangle(HMENU hMenu,bool *bSuspend)
 //	case WAIT_FAILED   :break;
 //	case WAIT_OBJECT_0:
 
-	EnterCriticalSection(&cs);
-	if(!*bSuspend){	 
+	if(!*bSuspend){
+		EnterCriticalSection(&cs);
 		if(0xFFFFFFFF==SuspendThread(hThreadE[1]))
 		{		
 			wsprintf(message,TEXT("SuspendThread Error %ld"),GetLastError());
@@ -707,7 +716,7 @@ void SuspendRectangle(HMENU hMenu,bool *bSuspend)
 			LeaveCriticalSection(&cs);
 			return;
 		}
-
+		LeaveCriticalSection(&cs);
 		*bSuspend = true;
 		//Check
 		//Sets the check-mark attribute to the checked state.
@@ -720,7 +729,6 @@ void SuspendRectangle(HMENU hMenu,bool *bSuspend)
 			wsprintf(message,TEXT("ResumeThread Error %ld"),GetLastError());
 			MessageBox(NULL,message,"PaintRectangle Thread",MB_OK|MB_ICONEXCLAMATION);
 			//ReleaseMutex(hMutex);
-			LeaveCriticalSection(&cs);
 			return;
 		}
 
@@ -730,7 +738,6 @@ void SuspendRectangle(HMENU hMenu,bool *bSuspend)
 		CheckMenuItem(hMenu,IDM_SUSR,MF_UNCHECKED);			
 	}
 	//ReleaseMutex(hMutex);
-	LeaveCriticalSection(&cs);
 	return;
 	//break;
 	//default: //is never reached!!
@@ -751,9 +758,9 @@ void SuspendLine(HMENU hMenu, bool *bSuspend)
 	case WAIT_FAILED:break;
 	case WAIT_OBJECT_0:*/
 
-	EnterCriticalSection(&cs);
 
 		if (!*bSuspend) {
+			EnterCriticalSection(&cs);
 			if (0xFFFFFFFF == SuspendThread(hThreadE[2]))
 			{
 				wsprintf(message, TEXT("SuspendThread Error %ld"), GetLastError());
@@ -762,7 +769,7 @@ void SuspendLine(HMENU hMenu, bool *bSuspend)
 				LeaveCriticalSection(&cs);
 				return;
 			}
-
+			LeaveCriticalSection(&cs);
 			*bSuspend = true;
 			//Check
 			//Sets the check-mark attribute to the checked state.
@@ -775,7 +782,6 @@ void SuspendLine(HMENU hMenu, bool *bSuspend)
 				wsprintf(message, TEXT("ResumeThread Error %ld"), GetLastError());
 				MessageBox(NULL, message, "PaintLine Thread", MB_OK | MB_ICONEXCLAMATION);
 				//ReleaseMutex(hMutex);
-				LeaveCriticalSection(&cs);
 				return;
 			}
 
@@ -785,7 +791,6 @@ void SuspendLine(HMENU hMenu, bool *bSuspend)
 			CheckMenuItem(hMenu, IDM_SUSL, MF_UNCHECKED);
 		}
 		//ReleaseMutex(hMutex);
-		LeaveCriticalSection(&cs);
 		return;
 	//	break;
 	//default: //is never reached!!
@@ -810,7 +815,10 @@ void TerminateEllipse(HWND hWnd,HMENU hMenu,BOOL *fTerminateE)
 		{MessageBox(NULL,"CloseHandle  failed",
 						       "PaintEllipse Thread",
 							   MB_OK|MB_ICONEXCLAMATION);
-		};
+		}
+		else {
+			hThreadE[0] = INVALID_HANDLE_VALUE;
+		}
 
 
 	}
@@ -856,7 +864,10 @@ void TerminateRectangle(HWND hWnd, HMENU hMenu, BOOL *fTerminateR)
 			MessageBox(NULL, "CloseHandle  failed",
 				"PaintRectangle Thread",
 				MB_OK | MB_ICONEXCLAMATION);
-		};
+		}
+		else {
+			hThreadE[1] = INVALID_HANDLE_VALUE;
+		}
 
 
 	}
@@ -902,7 +913,10 @@ void TerminateLine(HWND hWnd, HMENU hMenu, BOOL *fTerminateL)
 			MessageBox(NULL, "CloseHandle  failed",
 				"PaintLine Thread",
 				MB_OK | MB_ICONEXCLAMATION);
-		};
+		}
+		else {
+			hThreadE[2] = INVALID_HANDLE_VALUE;
+		}
 
 
 	}
