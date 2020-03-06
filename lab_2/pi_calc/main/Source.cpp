@@ -1,8 +1,10 @@
 #include <windows.h> 
 #include <process.h> 
 #include <stdio.h> 
-#define p 2 // количество дочерних потоков 
-double pi[p]; int n = 1000000; 
+#include <chrono>
+#include <iostream>
+#define p 4 // количество дочерних потоков 
+double pi[p]; int n = 100000000; 
 
 DWORD WINAPI ThreadFunction(LPVOID pvParam) {
 	int nParam = (int)pvParam; 
@@ -20,6 +22,13 @@ DWORD WINAPI ThreadFunction(LPVOID pvParam) {
 } 
 
 int main() { 
+	//DWORD dwStartTime = GetTickCount();
+	//auto dwStartTime = std::chrono::steady_clock::now();
+	LARGE_INTEGER liFrequency, liStartTime, liFinishTime;
+	QueryPerformanceFrequency(&liFrequency);
+	// получаем стартовое время
+	QueryPerformanceCounter(&liStartTime);
+
 	HANDLE hThreads[p]; 
 	int k; 
 	double sum; // создание дочерних потоков 
@@ -44,7 +53,12 @@ int main() {
 	for (k = 0; k < p; ++k) {
 		sum += pi[k];
 	}
+	//DWORD dwElapsedTime = GetTickCount() - dwStartTime;
+	//auto dwElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - dwStartTime).count();
+	QueryPerformanceCounter(&liFinishTime);
+
 	printf("PI = %.16f\n", sum); 
+	std::cout << "Time = " << 1000.*(liFinishTime.QuadPart - liStartTime.QuadPart) / liFrequency.QuadPart;
 	system("pause");
 	return 0; 
 }
