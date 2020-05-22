@@ -4,9 +4,9 @@
 #include <chrono>
 #include <iostream>
 #include <time.h>
-#define p 2 // максимальное ко-во потоков
-#define r 10000 // количество строк матрицы
-#define c 10000 // количество столбцов матрицы
+#define p 4 // максимальное ко-во потоков
+#define r 5000 // количество строк матрицы
+#define c 5000 // количество столбцов матрицы
 
 double A[r][c];
 double B[c];

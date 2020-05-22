@@ -56,7 +56,7 @@ int main() {
 	//DWORD dwElapsedTime = GetTickCount() - dwStartTime;
 	//auto dwElapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - dwStartTime).count();
 	QueryPerformanceCounter(&liFinishTime);
-
+	double t = (liFinishTime.QuadPart - liStartTime.QuadPart);
 	printf("PI = %.16f\n", sum); 
 	std::cout << "Time = " << 1000.*(liFinishTime.QuadPart - liStartTime.QuadPart) / liFrequency.QuadPart;
 	system("pause");
